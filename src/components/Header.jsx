@@ -54,9 +54,9 @@ const Header = ({ user }) => {
           </div>
           <div
             className="cursor-pointer hover:text-primary duration-300"
-            onClick={() => scrollToSection("contact-us")}
+            onClick={() => scrollToSection("reviews")}
           >
-            Contact us
+            Reviews
           </div>
         </div>
       )}

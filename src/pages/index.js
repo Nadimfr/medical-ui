@@ -24,41 +24,49 @@ const montserrat = Montserrat({ subsets: ["latin"] });
 
 const services = [
   {
+    icon: "/icons/icon1.png",
     title: "Leading Technology",
     description:
       "We harness cutting-edge AI technology to provide unparalleled accuracy and efficiency in bone fracture detection, ensuring you receive the most reliable diagnoses.",
   },
   {
+    icon: "/icons/icon2.png",
     title: "Timely Results",
     description:
       "With our platform, you can expect rapid turnaround times for diagnostic reports, enabling prompt treatment planning and improved patient outcomes.",
   },
   {
+    icon: "/icons/icon3.png",
     title: "Tailored Solutions",
     description:
       "We understand that every healthcare environment is unique. That's why we offer customizable options to meet your specific needs, ensuring a personalized experience that fits seamlessly into your practice.",
   },
   {
+    icon: "/icons/icon4.png",
     title: "Continuous Innovation",
     description:
       "As leaders in diagnostic technology, we are committed to continuous innovation and improvement, keeping you at the forefront of medical advancements and ensuring you always have access to the latest tools and resources.",
   },
   {
+    icon: "/icons/icon5.png",
     title: "AI-Powered Detection",
     description:
       "Utilizing state-of-the-art artificial intelligence, our platform delivers rapid and precise identification of bone fractures, ensuring timely diagnosis and treatment.",
   },
   {
+    icon: "/icons/icon6.png",
     title: "Imaging Analysis",
     description:
       "Our advanced imaging analysis services provide detailed assessments of X-rays, MRIs, offering comprehensive insights into patient conditions.",
   },
   {
+    icon: "/icons/icon7.png",
     title: "Real-Time Reporting",
     description:
       "Receive real-time diagnostic reports with our streamlined platform, enabling healthcare professionals to make informed decisions quickly and efficiently.",
   },
   {
+    icon: "/icons/icon8.png",
     title: "Consultation Services",
     description:
       "Access to a network of medical and AI specialists for case consultations and second opinions.",
@@ -86,6 +94,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
   const handleUpload = async () => {
     const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
+
     if (!file) return; // Ensure file is selected
 
     const formData = new FormData();
@@ -116,7 +125,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
       const canvas = document.getElementById("resultCanvas");
       const ctx = canvas.getContext("2d");
 
-      img.onload = () => {
+      img.onload = async () => {
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
@@ -130,24 +139,61 @@ export default function Home({ blogsData, reviewsData, userData }) {
             ctx.lineWidth = 2;
             ctx.stroke();
           });
+
+          const duration = result?.predictions[0]?.confidence > 0.75 ? 8 : 4;
+
+          const addSolutions = await axios.get(
+            `http://localhost:8080/api/solutions/${duration}`
+          );
+
+          // Convert canvas to Blob
+          canvas.toBlob(async (blob) => {
+            const url = "https://api.imgbb.com/1/upload";
+            const apiKey = "aa32d11ef7de635ef1f66d4d01c7f791";
+            const expiration = 1000000;
+
+            const formData = new FormData();
+            formData.append("key", apiKey);
+            formData.append("expiration", expiration);
+            formData.append("image", blob, "image.jpg");
+
+            try {
+              const uploadResponse = await axios.post(url, formData, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              });
+              console.log("UPLOAD SUCCESS", uploadResponse.data.data.url);
+
+              const data = {
+                user_id: userData._id,
+                confidence: result?.predictions[0]?.confidence,
+                duration: duration,
+                solutions: addSolutions.data,
+                image: uploadResponse.data.data.url,
+              };
+
+              if (result?.predictions[0]?.confidence) {
+                const createFracture = await axios.post(
+                  `http://localhost:8080/api/fractures/create`,
+                  data
+                );
+
+                document.getElementById("nextBtn").classList.remove("hidden");
+                document.getElementById("nextBtn").onclick = function () {
+                  if (createFracture?.data?._id) {
+                    window.location.href = `/fractures/${createFracture.data._id}`;
+                  }
+                };
+              } else {
+                alert("NO FRACTURE DETECTED!");
+              }
+            } catch (uploadError) {
+              console.error("Error uploading image to imgbb:", uploadError);
+            }
+          }, "image/jpeg");
         }
       };
-
-      const data = {
-        user_id: userData._id,
-        confidence: result?.predictions[0]?.confidence,
-        duration: "4months",
-      };
-
-      if (result?.predictions[0]?.confidence) {
-        const createFracture = await axios.post(
-          `http://localhost:8080/api/fractures/create`,
-          data
-        );
-        router.push(`/fractures/${createFracture?.data?._id}`);
-      } else alert("NO FRACTURE DETECTED!");
-
-      console.log(fracture);
     } catch (error) {
       console.error("Error uploading image:", error);
     }
@@ -162,7 +208,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
 
         <div className="mt-[150px] mb-[45px] bg-white flex items-center justify-between w-full px-8 lg:px-[70px]">
           <div>
-            <div className="text-[54px] lg:text-[64px] leading-none">
+            <div className="text-[54px] lg:text-[72px] leading-none">
               <span className="text-[#038096]">Instant </span>
               <span className="text-black">Accuracy</span>
               <span className="text-[#038096]">,</span>
@@ -170,17 +216,19 @@ export default function Home({ blogsData, reviewsData, userData }) {
               <span className="text-black">Immediate </span>
               <span className="text-[#038096]">Care</span>
             </div>
-            <div className="my-[24px]">
-              AI-powered precision in bone fracture detection for faster and
-              accurate diagnoses.
+            <div className="my-[24px] text-lg">
+              AI-powered precision in bone fracture detection<br></br>for faster
+              and accurate diagnoses.
             </div>
-            <div className="2xl:w-1/3">
-              <Button
-                primary
-                title="Get Started"
-                onClick={() => router.push("/login")}
-              />
-            </div>
+            {!cookies?.token && (
+              <div className="2xl:w-1/3">
+                <Button
+                  primary
+                  title="Get Started"
+                  onClick={() => router.push("/login")}
+                />
+              </div>
+            )}
           </div>
           <img
             src="/hero.png"
@@ -238,6 +286,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
                     title={blog?.title}
                     paragraph={blog?.paragraph}
                     author={blog?.author}
+                    image={blog?.image}
                   />
                 </div>
               ))}
@@ -245,7 +294,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
           </div>
         </Layout>
 
-        <div className="mt-[15vh] w-full">
+        <div id="reviews" className="mt-[15vh] w-full">
           <div className="text-[32px] text-primary mb-[60px] text-center">
             What Do People Say?
           </div>
@@ -288,6 +337,12 @@ export default function Home({ blogsData, reviewsData, userData }) {
                   <canvas id="resultCanvas"></canvas>
                 </div>
               </div>
+
+              {
+                <div id="nextBtn" className="w-[200px] my-3 hidden">
+                  <Button secondary title="Next" />
+                </div>
+              }
             </div>
           </ModalCmp>
         </div>
