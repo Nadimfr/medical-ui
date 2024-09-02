@@ -1,5 +1,6 @@
 import Button from "@/components/Button";
 import Input from "@/components/Input";
+import Loading from "@/components/Loading";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { setCookie, parseCookies } from "nookies";
@@ -17,11 +18,10 @@ const login = () => {
       [e.target.name]: e.target.value,
     });
   };
-
-  const [loading, setLoading] = useState(false);
+  const [showLoadingPage, setShowLoadingPage] = useState(false);
 
   const handleLogin = async () => {
-    setLoading(true);
+    setShowLoadingPage(true);
     try {
       const response = await axios.post(
         `http://localhost:8080/api/users/login`,
@@ -36,7 +36,6 @@ const login = () => {
         path: "/", // Cookie is accessible across the entire site
       });
       router.push("/");
-      setLoading(false);
       // Handle success (e.g., show a success message, redirect, etc.)
     } catch (error) {
       console.error("auth failed:", error.response?.data || error.message);
@@ -45,39 +44,38 @@ const login = () => {
   };
 
   return (
-    <div className="h-[100vh] w-full flex">
-      <div className="w-0 lg:w-1/2 h-full bg-white"></div>
-      <div className="w-full lg:w-1/2 h-full bg-primary flex flex-col items-center justify-center px-[70px] lg:px-[130px]">
-        <span className="text-[24px] font-medium text-white mb-10">
-          WELCOME BACK !
-        </span>
+    <>
+      <Loading show={showLoadingPage} />
 
-        <div className="flex flex-col items-center justify-center gap-4 w-full">
-          <Input
-            type="email"
-            placeholder="Email address"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
+      <div className="h-[100vh] w-full flex">
+        <div className="w-0 lg:w-1/2 h-full bg-white"></div>
+        <div className="w-full lg:w-1/2 h-full bg-primary flex flex-col items-center justify-center px-[70px] lg:px-[130px]">
+          <span className="text-[24px] font-medium text-white mb-10">
+            WELCOME BACK !
+          </span>
 
-          <Input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
+          <div className="flex flex-col items-center justify-center gap-4 w-full">
+            <Input
+              type="email"
+              placeholder="Email address"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+            />
 
-          <Button
-            loading={loading}
-            title="Sign In"
-            primary
-            onClick={handleLogin}
-          />
+            <Input
+              type="password"
+              placeholder="Password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+
+            <Button title="Sign In" primary onClick={handleLogin} />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

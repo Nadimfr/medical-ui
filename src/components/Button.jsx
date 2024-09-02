@@ -1,11 +1,10 @@
 import clsx from "clsx";
 import { Montserrat } from "next/font/google";
 import React from "react";
-import LoaderIcon from "../../public/svgs/loader";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
-const Button = ({ title, primary, secondary, onClick, loading }) => {
+const Button = ({ title, primary, secondary, onClick }) => {
   return (
     <div
       onClick={onClick}
@@ -19,7 +18,7 @@ const Button = ({ title, primary, secondary, onClick, loading }) => {
         }
       )}
     >
-      {loading ? <LoaderIcon className="animate-spin duration-300" /> : title}
+      {title}
     </div>
   );
 };

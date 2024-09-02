@@ -17,8 +17,9 @@ import Footer from "@/components/Footer";
 import Input from "@/components/Input";
 import { parseCookies } from "nookies";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import Loading from "@/components/Loading";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -77,6 +78,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
   const router = useRouter();
   const [modal, setModal] = useState(false);
   const cookies = parseCookies();
+  const [showLoadingPage, setShowLoadingPage] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -163,7 +165,6 @@ export default function Home({ blogsData, reviewsData, userData }) {
                   "Content-Type": "multipart/form-data",
                 },
               });
-              console.log("UPLOAD SUCCESS", uploadResponse.data.data.url);
 
               const data = {
                 user_id: userData._id,
@@ -171,6 +172,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
                 duration: duration,
                 solutions: addSolutions.data,
                 image: uploadResponse.data.data.url,
+                startDate: new Date().toISOString(),
               };
 
               if (result?.predictions[0]?.confidence) {
@@ -199,8 +201,15 @@ export default function Home({ blogsData, reviewsData, userData }) {
     }
   };
 
+  useEffect(() => {
+    cookies?.token &&
+      document.getElementById("getStartedBtn").classList.add("hidden");
+  }, [cookies?.token]);
+
   return (
     <div>
+      <Loading show={showLoadingPage} />
+
       <main
         className={`flex min-h-screen flex-col items-center justify-between overflow-x-hidden ${montserrat.className}`}
       >
@@ -220,15 +229,13 @@ export default function Home({ blogsData, reviewsData, userData }) {
               AI-powered precision in bone fracture detection<br></br>for faster
               and accurate diagnoses.
             </div>
-            {!cookies?.token && (
-              <div className="2xl:w-1/3">
-                <Button
-                  primary
-                  title="Get Started"
-                  onClick={() => router.push("/login")}
-                />
-              </div>
-            )}
+            <div id="getStartedBtn" className="2xl:w-1/3">
+              <Button
+                primary
+                title="Get Started"
+                onClick={() => router.push("/login")}
+              />
+            </div>
           </div>
           <img
             src="/hero.png"
