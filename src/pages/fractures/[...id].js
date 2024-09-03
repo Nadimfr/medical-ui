@@ -1,52 +1,63 @@
 import Button from "@/components/Button";
 import Layout from "@/components/Layout";
+import Loading from "@/components/Loading";
 import { Montserrat } from "next/font/google";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
 const fracturePage = ({ fractureData }) => {
   const router = useRouter();
+  const [showLoadingPage, setShowLoadingPage] = useState(false);
+
+  useEffect(() => {
+    !fractureData && setShowLoadingPage(true);
+  }, []);
+
   return (
-    <Layout cn={`${montserrat.className}`}>
-      <div className={`font-semibold text-xl mb-5`}>
-        Here are our recommendations for the next {fractureData.duration}weeks
-        to get better the soonest!
-      </div>
+    <>
+      <Loading show={showLoadingPage} />
 
-      <div className="flex items-start gap-4">
-        <img src={fractureData.image} />
+      <Layout cn={`${montserrat.className} mt-0`}>
+        <div className={`font-semibold text-xl mb-5`}>
+          Here are our recommendations for the next {fractureData.duration}weeks
+          to get better the soonest!
+        </div>
 
-        <div>
+        <div className="flex items-start gap-4">
+          <img src={fractureData.image} />
+
           <div>
-            <span className="font-bold text-md">9 A.M : </span>
-            {fractureData?.solutions[0].solution}
-          </div>
-          <div>
-            <span className="font-bold text-md">3 P.M : </span>
-            {fractureData?.solutions[1].solution}
-          </div>
-          <div>
-            <span className="font-bold text-md">6 P.M : </span>
-            {fractureData?.solutions[2].solution}
+            <div>
+              <span className="font-bold text-md">9 A.M : </span>
+              {fractureData?.solutions[0].solution}
+            </div>
+            <div>
+              <span className="font-bold text-md">3 P.M : </span>
+              {fractureData?.solutions[1].solution}
+            </div>
+            <div>
+              <span className="font-bold text-md">6 P.M : </span>
+              {fractureData?.solutions[2].solution}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between gap-5 mt-2">
-        <Button
-          onClick={() => router.push("/")}
-          secondary
-          title="Go Back to Home Page"
-        />
-        <Button
-          onClick={() => router.push("/fractures")}
-          primary
-          title="Check my fractures"
-        />
-      </div>
-    </Layout>
+        <div className="flex items-center justify-between gap-5 mt-2">
+          <Button
+            onClick={() => router.push("/")}
+            secondary
+            title="Go Back to Home Page"
+          />
+          <Button
+            onClick={() => router.push("/fractures")}
+            primary
+            title="Check my fractures"
+          />
+        </div>
+      </Layout>
+    </>
   );
 };
 

@@ -20,6 +20,8 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "@/components/Loading";
+import StarSvg from "../../public/svgs/star";
+import clsx from "clsx";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -77,6 +79,7 @@ const services = [
 export default function Home({ blogsData, reviewsData, userData }) {
   const router = useRouter();
   const [modal, setModal] = useState(false);
+  const [reviewModal, setReviewModal] = useState(false);
   const cookies = parseCookies();
   const [showLoadingPage, setShowLoadingPage] = useState(false);
 
@@ -94,6 +97,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
   );
 
   const handleUpload = async () => {
+    setShowLoadingPage(true);
     const fileInput = document.getElementById("fileInput");
     const file = fileInput.files[0];
 
@@ -147,6 +151,8 @@ export default function Home({ blogsData, reviewsData, userData }) {
           const addSolutions = await axios.get(
             `http://localhost:8080/api/solutions/${duration}`
           );
+
+          setShowLoadingPage(false);
 
           // Convert canvas to Blob
           canvas.toBlob(async (blob) => {
@@ -206,9 +212,68 @@ export default function Home({ blogsData, reviewsData, userData }) {
       document.getElementById("getStartedBtn").classList.add("hidden");
   }, [cookies?.token]);
 
+  // Initialize the state with the number of stars (0 to 5 for example)
+  const [stars, setStars] = useState(0);
+
+  // Function to handle star clicks
+  const handleClick = (index) => {
+    setStars(index + 1); // Update the number of stars based on the clicked index
+  };
+
+  // Create an array with 5 elements (for 5 stars)
+  const starArray = Array.from({ length: 5 });
+
+  const [review, setReview] = useState("");
+
+  const addReview = async () => {
+    setShowLoadingPage(true);
+    const reviewData = {
+      name: userData.first_name,
+      stars: stars,
+      review: review,
+    };
+
+    const createFracture = await axios.post(
+      `http://localhost:8080/api/reviews/create`,
+      reviewData
+    );
+
+    setReviewModal(false);
+    setShowLoadingPage(false);
+  };
+
   return (
     <div>
       <Loading show={showLoadingPage} />
+
+      {reviewModal && (
+        <ModalCmp onClose={() => setReviewModal(false)} title="Add Review">
+          <div className="flex justify-start items-start gap-1">
+            {starArray.map((_, index) => (
+              <div
+                key={index}
+                className={clsx("hover:text-[#FFF500] duration-300", {
+                  "text-[#FFF500]": index < stars,
+                  "text-[#E1F0F2]": index >= stars,
+                })}
+                onClick={() => handleClick(index)} // Add click handler
+              >
+                <StarSvg />
+              </div>
+            ))}
+          </div>
+
+          <Input
+            name="Review"
+            placeholder="Write here..."
+            type="text"
+            className="h-32 my-4"
+            onChange={(e) => setReview(e.target.value)}
+          />
+
+          <Button title="Submit" secondary onClick={addReview} />
+        </ModalCmp>
+      )}
 
       <main
         className={`flex min-h-screen flex-col items-center justify-between overflow-x-hidden ${montserrat.className}`}
@@ -301,7 +366,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
           </div>
         </Layout>
 
-        <div id="reviews" className="mt-[15vh] w-full">
+        <div id="reviews" className="mt-[15vh] w-full ">
           <div className="text-[32px] text-primary mb-[60px] text-center">
             What Do People Say?
           </div>
@@ -314,11 +379,19 @@ export default function Home({ blogsData, reviewsData, userData }) {
                 <Review
                   stars={review?.stars}
                   review={review?.review}
-                  reviewer={review?.reviewer}
+                  reviewer={review?.name}
                 />
               </SwiperSlide>
             ))}
           </Swiper>
+        </div>
+
+        <div className="w-fit mt-3">
+          <Button
+            secondary
+            title="Add Yours"
+            onClick={() => setReviewModal(true)}
+          />
         </div>
 
         <Footer />
