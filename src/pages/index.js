@@ -280,17 +280,17 @@ export default function Home({ blogsData, reviewsData, userData }) {
       >
         <Header user={userData} />
 
-        <div className="mt-[150px] mb-[45px] bg-white flex items-center justify-between w-full px-8 lg:px-[70px]">
+        <div className="pt-[150px] pb-[45px] bg-gradient-to-r from-primary via-white to-white flex items-center justify-between w-full px-8 lg:px-[70px] h-[100vh]">
           <div>
             <div className="text-[54px] lg:text-[72px] leading-none">
-              <span className="text-[#038096]">Instant </span>
-              <span className="text-black">Accuracy</span>
-              <span className="text-[#038096]">,</span>
+              <span className="text-white">Instant </span>
+              <span className="text-primary">Accuracy</span>
+              <span className="text-primary">,</span>
               <br />
-              <span className="text-black">Immediate </span>
-              <span className="text-[#038096]">Care</span>
+              <span className="text-white">Immediate </span>
+              <span className="text-primary">Care</span>
             </div>
-            <div className="my-[24px] text-lg">
+            <div className="my-[24px] text-lg text-white">
               AI-powered precision in bone fracture detection<br></br>for faster
               and accurate diagnoses.
             </div>
