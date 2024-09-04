@@ -386,7 +386,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
           </Swiper>
         </div>
 
-        <div className="w-fit mt-3">
+        <div className="w-fit mt-10">
           <Button
             secondary
             title="Add Yours"
