@@ -9,7 +9,7 @@ const Button = ({ title, primary, secondary, onClick }) => {
     <div
       onClick={onClick}
       className={clsx(
-        `w-full rounded-[15px] py-[10px] px-[15px] text-center 2xl:text-[24px] border-[2px] duration-300 cursor-pointer flex items-center justify-center ${montserrat.className}`,
+        `w-full rounded-[15px] py-[10px] px-[15px] text-center 2xl:text-[20px] border-[2px] duration-300 cursor-pointer flex items-center justify-center ${montserrat.className}`,
         {
           "bg-white text-primary hover:bg-primary hover:text-white hover:border-white":
             primary,
