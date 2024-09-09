@@ -8,7 +8,20 @@ const Header = ({ user }) => {
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
     if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
+      const sectionRect = section.getBoundingClientRect();
+      const sectionTop = sectionRect.top + window.pageYOffset; // get the top position of the section relative to the document
+      const windowHeight = window.innerHeight; // get the height of the viewport
+      const sectionHeight = sectionRect.height; // get the height of the section
+
+      // Calculate the scroll position to center the section
+      const scrollToPosition =
+        sectionTop - windowHeight / 2 + sectionHeight / 2;
+
+      // Smoothly scroll to the calculated position
+      window.scrollTo({
+        top: scrollToPosition,
+        behavior: "smooth",
+      });
     }
   };
 

@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import React from "react";
 
-const Table = ({ columns, data }) => {
+const Table = ({ columns, data, resultApi }) => {
   const router = useRouter();
 
   return (
@@ -24,7 +24,7 @@ const Table = ({ columns, data }) => {
             <tr
               key={rowIndex}
               className="hover:bg-[#03809680] duration-500 cursor-pointer"
-              onClick={() => router.push(`/fractures/${row._id}`)}
+              onClick={() => resultApi(row._id)}
             >
               {columns.map((column) => (
                 <td

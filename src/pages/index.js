@@ -80,8 +80,10 @@ export default function Home({ blogsData, reviewsData, userData }) {
   const router = useRouter();
   const [modal, setModal] = useState(false);
   const [reviewModal, setReviewModal] = useState(false);
+  const [resultModal, setResultModal] = useState(false);
   const cookies = parseCookies();
   const [showLoadingPage, setShowLoadingPage] = useState(false);
+  const [fractureData, setFractureData] = useState({});
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -190,7 +192,10 @@ export default function Home({ blogsData, reviewsData, userData }) {
                 document.getElementById("nextBtn").classList.remove("hidden");
                 document.getElementById("nextBtn").onclick = function () {
                   if (createFracture?.data?._id) {
-                    window.location.href = `/fractures/${createFracture.data._id}`;
+                    // window.location.href = `/fractures/${createFracture.data._id}`;
+                    setModal(false);
+                    setResultModal(true);
+                    getFractureData(createFracture?.data?._id);
                   }
                 };
               } else {
@@ -205,6 +210,17 @@ export default function Home({ blogsData, reviewsData, userData }) {
     } catch (error) {
       console.error("Error uploading image:", error);
     }
+  };
+
+  const getFractureData = async (id) => {
+    const fracture = await fetch(
+      `http://localhost:8080/api/fractures/fractures/${id}`
+    );
+
+    console.log("frac", fracture);
+    const fractureData = await fracture.json();
+    console.log(fractureData);
+    setFractureData(fractureData);
   };
 
   useEffect(() => {
@@ -280,7 +296,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
       >
         <Header user={userData} />
 
-        <div className="pt-[150px] pb-[45px] bg-gradient-to-r from-primary via-white to-white flex items-center justify-between w-full px-8 lg:px-[70px] h-[100vh]">
+        <div className="pt-[150px] bg-gradient-to-r from-primary via-white to-white flex items-center justify-between w-full px-8 lg:px-[70px] h-[100vh]">
           <div>
             <div className="text-[54px] lg:text-[72px] leading-none">
               <span className="text-white">Instant </span>
@@ -310,8 +326,8 @@ export default function Home({ blogsData, reviewsData, userData }) {
         </div>
 
         <Layout>
-          <div id="services">
-            <div className="text-[32px] text-[#038096] mb-[66px] text-center">
+          <div id="services" className="mt-32">
+            <div className="text-[32px] text-[#038096] text-center">
               Our Services
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 items-center justify-center gap-[89px]">
@@ -327,7 +343,10 @@ export default function Home({ blogsData, reviewsData, userData }) {
           </div>
         </Layout>
 
-        <div className="bg-[#038096] py-[100px] px-[230px] w-full mt-[66px] flex flex-col items-center justify-center">
+        <div
+          id="generate"
+          className="bg-[#038096] py-[100px] px-[230px] w-full mt-[66px] flex flex-col items-center justify-center"
+        >
           <div className="text-white font-medium text-[48px] text-center mb-[50px]">
             Revolutionizing Diagnosis: AI-Powered
             <br />
@@ -372,7 +391,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
           </div>
           <Swiper
             modules={[Navigation, Pagination, Scrollbar, A11y]}
-            slidesPerView={3.75}
+            slidesPerView={4.25}
           >
             {reviewsData.map((review, idx) => (
               <SwiperSlide className="ps-8 lg:ps-[70px]" key={idx}>
@@ -423,6 +442,53 @@ export default function Home({ blogsData, reviewsData, userData }) {
                   <Button secondary title="Next" />
                 </div>
               }
+            </div>
+          </ModalCmp>
+        </div>
+      )}
+
+      {resultModal && (
+        <div>
+          <ModalCmp
+            onClose={() => setResultModal(false)}
+            onOutsideCLick={() => setResultModal(false)}
+            title="Results"
+          >
+            <div className={`font-semibold text-xl mb-5`}>
+              Here are our recommendations for the next {fractureData.duration}
+              weeks to get better the soonest!
+            </div>
+
+            <div className="flex items-start gap-4">
+              <img src={fractureData.image} />
+
+              <div>
+                <div className="text-xl">
+                  <span className="font-bold text-xl">9 A.M : </span>
+                  {fractureData?.solutions[0].solution}
+                </div>
+                <div className="text-xl">
+                  <span className="font-bold text-xl">3 P.M : </span>
+                  {fractureData?.solutions[1].solution}
+                </div>
+                <div className="text-xl">
+                  <span className="font-bold text-xl">6 P.M : </span>
+                  {fractureData?.solutions[2].solution}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-5 mt-2">
+              <Button
+                onClick={() => router.push("/")}
+                secondary
+                title="Go Back to Home Page"
+              />
+              <Button
+                onClick={() => router.push("/fractures")}
+                primary
+                title="Check my fractures"
+              />
             </div>
           </ModalCmp>
         </div>
