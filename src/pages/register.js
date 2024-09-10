@@ -78,7 +78,13 @@ const register = () => {
   return (
     <>
       <div className="h-[100vh] w-full flex">
-        <div className="w-0 lg:w-1/2 h-full bg-white"></div>
+        <div className="w-0 lg:w-1/2 h-full bg-white flex items-center justify-center">
+          <img
+            src="/signup.png"
+            className="h-0 lg:h-[650px] w-fit"
+            alt="signup"
+          />
+        </div>
         <div className="w-full lg:w-1/2 h-full bg-primary flex flex-col items-center justify-center px-[70px] lg:px-[130px]">
           <span className="text-[24px] font-medium text-white mb-10">
             CREATE AN ACCOUNT
@@ -135,7 +141,10 @@ const register = () => {
       </div>
 
       {openModal && (
-        <ModalCmp onClose={() => setOpenModal(false)}>
+        <ModalCmp
+          onClose={() => setOpenModal(false)}
+          title="Account Verification"
+        >
           <div className="mb-3 flex flex-col items-center justify-center gap-3">
             <Input
               type="email"
@@ -143,6 +152,7 @@ const register = () => {
               name="email"
               value={verifyData.email}
               onChange={handleChange2}
+              className="placeholder:!text-primary !text-primary"
             />
             <Input
               type="text"
@@ -150,6 +160,7 @@ const register = () => {
               name="code"
               value={verifyData.code}
               onChange={handleChange2}
+              className="placeholder:!text-primary !text-primary"
             />
           </div>
 

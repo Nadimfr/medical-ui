@@ -22,6 +22,7 @@ import axios from "axios";
 import Loading from "@/components/Loading";
 import StarSvg from "../../public/svgs/star";
 import clsx from "clsx";
+import useSWR from "swr";
 
 const montserrat = Montserrat({ subsets: ["latin"] });
 
@@ -76,14 +77,14 @@ const services = [
   },
 ];
 
-export default function Home({ blogsData, reviewsData, userData }) {
+export default function Home({ blogsData, userData }) {
   const router = useRouter();
   const [modal, setModal] = useState(false);
   const [reviewModal, setReviewModal] = useState(false);
   const [resultModal, setResultModal] = useState(false);
   const cookies = parseCookies();
   const [showLoadingPage, setShowLoadingPage] = useState(false);
-  const [fractureData, setFractureData] = useState({});
+  const [fractureDetails, setFractureDetails] = useState({});
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -128,6 +129,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
       const img = document.getElementById("uploadedImage");
       img.src = URL.createObjectURL(file);
       img.style.display = "block";
+      img.classList.remove("hidden");
 
       // Draw image and annotations on canvas
       const canvas = document.getElementById("resultCanvas");
@@ -135,7 +137,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
 
       img.onload = async () => {
         canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.height = 550;
         ctx.drawImage(img, 0, 0);
 
         // Draw annotations
@@ -194,8 +196,12 @@ export default function Home({ blogsData, reviewsData, userData }) {
                   if (createFracture?.data?._id) {
                     // window.location.href = `/fractures/${createFracture.data._id}`;
                     setModal(false);
-                    setResultModal(true);
                     getFractureData(createFracture?.data?._id);
+                    setShowLoadingPage(true);
+                    setTimeout(() => {
+                      setResultModal(true);
+                      setShowLoadingPage(false);
+                    }, 2000);
                   }
                 };
               } else {
@@ -216,11 +222,10 @@ export default function Home({ blogsData, reviewsData, userData }) {
     const fracture = await fetch(
       `http://localhost:8080/api/fractures/fractures/${id}`
     );
-
-    console.log("frac", fracture);
     const fractureData = await fracture.json();
-    console.log(fractureData);
-    setFractureData(fractureData);
+
+    console.log("fractureData", fractureData);
+    setFractureDetails(fractureData);
   };
 
   useEffect(() => {
@@ -258,6 +263,9 @@ export default function Home({ blogsData, reviewsData, userData }) {
     setShowLoadingPage(false);
   };
 
+  const fetcher = (url) => fetch(url).then((res) => res.json());
+  const { data, error } = useSWR("http://localhost:8080/api/reviews", fetcher);
+
   return (
     <div>
       <Loading show={showLoadingPage} />
@@ -283,7 +291,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
             name="Review"
             placeholder="Write here..."
             type="text"
-            className="h-32 my-4"
+            className="h-32 my-4 placeholder:!text-primary !text-primary"
             onChange={(e) => setReview(e.target.value)}
           />
 
@@ -320,7 +328,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
           </div>
           <img
             src="/hero.png"
-            className="h-0 lg:h-[650px] 3xl:h-[517px] w-fit"
+            className="h-0 lg:h-[85vh] 3xl:h-[517px] w-fit"
             alt="Hero"
           />
         </div>
@@ -393,7 +401,7 @@ export default function Home({ blogsData, reviewsData, userData }) {
             modules={[Navigation, Pagination, Scrollbar, A11y]}
             slidesPerView={4.25}
           >
-            {reviewsData.map((review, idx) => (
+            {data?.map((review, idx) => (
               <SwiperSlide className="ps-8 lg:ps-[70px]" key={idx}>
                 <Review
                   stars={review?.stars}
@@ -428,12 +436,18 @@ export default function Home({ blogsData, reviewsData, userData }) {
               <div className="w-[200px] my-3">
                 <Button secondary title="Get Results" onClick={handleUpload} />
               </div>
-              <div className="flex items-center gap-3">
-                <div>
-                  <img id="uploadedImage" />
+              <div className="flex items-start justify-center gap-3 w-full">
+                <div className="w-1/2 h-[500px]">
+                  <img
+                    id="uploadedImage"
+                    className="w-full h-full object-center hidden"
+                  />
                 </div>
-                <div>
-                  <canvas id="resultCanvas"></canvas>
+                <div className="w-1/2 h-[500px]">
+                  <canvas
+                    id="resultCanvas"
+                    className="w-full h-full object-center"
+                  ></canvas>
                 </div>
               </div>
 
@@ -455,37 +469,44 @@ export default function Home({ blogsData, reviewsData, userData }) {
             title="Results"
           >
             <div className={`font-semibold text-xl mb-5`}>
-              Here are our recommendations for the next {fractureData.duration}
+              Here are our recommendations for the next{" "}
+              {fractureDetails?.duration}
               weeks to get better the soonest!
             </div>
 
             <div className="flex items-start gap-4">
-              <img src={fractureData.image} />
+              <img src={fractureDetails?.image} />
 
               <div>
                 <div className="text-xl">
                   <span className="font-bold text-xl">9 A.M : </span>
-                  {fractureData?.solutions[0].solution}
+                  {fractureDetails?.solutions[0]?.solution}
                 </div>
                 <div className="text-xl">
                   <span className="font-bold text-xl">3 P.M : </span>
-                  {fractureData?.solutions[1].solution}
+                  {fractureDetails?.solutions[1]?.solution}
                 </div>
                 <div className="text-xl">
                   <span className="font-bold text-xl">6 P.M : </span>
-                  {fractureData?.solutions[2].solution}
+                  {fractureDetails?.solutions[2]?.solution}
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between gap-5 mt-2">
               <Button
-                onClick={() => router.push("/")}
+                onClick={() => {
+                  setResultModal(false);
+                  router.push("/");
+                }}
                 secondary
                 title="Go Back to Home Page"
               />
               <Button
-                onClick={() => router.push("/fractures")}
+                onClick={() => {
+                  setResultModal(false);
+                  router.push("/fractures");
+                }}
                 primary
                 title="Check my fractures"
               />
@@ -505,9 +526,6 @@ export async function getServerSideProps(context) {
   const blogs = await fetch(`http://localhost:8080/api/blogs`);
   const blogsData = await blogs.json();
 
-  const reviews = await fetch(`http://localhost:8080/api/reviews`);
-  const reviewsData = await reviews.json();
-
   const user = await fetch(`http://localhost:8080/api/users/${userId}`);
   const userData = await user.json();
 
@@ -515,7 +533,6 @@ export async function getServerSideProps(context) {
   return {
     props: {
       blogsData, // will be passed to the page component as props
-      reviewsData,
       userData,
     },
   };

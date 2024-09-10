@@ -6,7 +6,7 @@ const Input = ({
   value,
   onChange,
   name,
-  className = "",
+  className,
   ...props
 }) => {
   return (
@@ -16,7 +16,7 @@ const Input = ({
       value={value}
       onChange={onChange}
       name={name}
-      className={`w-full border-[1px] border-[#E0E0E0] rounded-[14px] pl-5 py-4 bg-transparent focus:outline-none text-black placeholder:text-black ${className}`}
+      className={`w-full border-[1px] border-[#E0E0E0] rounded-[14px] pl-5 py-4 bg-transparent focus:outline-none text-white placeholder:text-white ${className}`}
       {...props}
     />
   );
