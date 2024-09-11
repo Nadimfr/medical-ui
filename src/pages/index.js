@@ -304,17 +304,17 @@ export default function Home({ blogsData, userData }) {
       >
         <Header user={userData} />
 
-        <div className="pt-[150px] bg-gradient-to-r from-primary via-white to-white flex items-center justify-between w-full px-8 lg:px-[70px] h-[100vh]">
+        <div className="pt-[200px] lg:pt-[150px] bg-gradient-to-t lg:bg-gradient-to-r from-primary via-white to-white flex flex-col lg:flex-row items-center justify-between w-full px-8 lg:px-[70px] h-[100vh]">
           <div>
             <div className="text-[54px] lg:text-[72px] leading-none">
-              <span className="text-white">Instant </span>
+              <span className="lg:text-white text-primary">Instant </span>
               <span className="text-primary">Accuracy</span>
               <span className="text-primary">,</span>
               <br />
-              <span className="text-white">Immediate </span>
+              <span className="lg:text-white text-primary">Immediate </span>
               <span className="text-primary">Care</span>
             </div>
-            <div className="my-[24px] text-lg text-white">
+            <div className="my-[24px] text-lg lg:text-white text-primary">
               AI-powered precision in bone fracture detection<br></br>for faster
               and accurate diagnoses.
             </div>
@@ -327,15 +327,15 @@ export default function Home({ blogsData, userData }) {
             </div>
           </div>
           <img
-            src="/hero.png"
-            className="h-0 lg:h-[85vh] 3xl:h-[517px] w-fit"
+            src="https://i.ibb.co/1MM50pf/hero.png"
+            className="h-fit sm:h-[55vh] lg:h-[85vh] w-fit"
             alt="Hero"
           />
         </div>
 
-        <Layout>
-          <div id="services" className="mt-32">
-            <div className="text-[32px] text-[#038096] text-center">
+        <Layout cn="!mt-12">
+          <div id="services">
+            <div className="text-[32px] mb-12 text-[#038096] text-center">
               Our Services
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 items-center justify-center gap-[89px]">
@@ -353,7 +353,7 @@ export default function Home({ blogsData, userData }) {
 
         <div
           id="generate"
-          className="bg-[#038096] py-[100px] px-[230px] w-full mt-[66px] flex flex-col items-center justify-center"
+          className="bg-[#038096] py-[100px] lg:px-[230px] w-full mt-[66px] flex flex-col items-center justify-center"
         >
           <div className="text-white font-medium text-[48px] text-center mb-[50px]">
             Revolutionizing Diagnosis: AI-Powered
@@ -399,7 +399,36 @@ export default function Home({ blogsData, userData }) {
           </div>
           <Swiper
             modules={[Navigation, Pagination, Scrollbar, A11y]}
-            slidesPerView={4.25}
+            slidesPerView="auto"
+            breakpoints={{
+              // when window width is <= 480px
+              480: {
+                slidesPerView: 1.2,
+                spaceBetween: 0,
+              },
+              // when window width is <= 768px
+              768: {
+                slidesPerView: 1.75,
+                spaceBetween: 0,
+              },
+              // when window width is > 768px
+              1024: {
+                slidesPerView: 2.5,
+                spaceBetween: 0,
+              },
+              1200: {
+                slidesPerView: 3.25,
+                spaceBetween: 0,
+              },
+              1500: {
+                slidesPerView: 3.5,
+                spaceBetween: 0,
+              },
+              1800: {
+                slidesPerView: 4.25,
+                spaceBetween: 0,
+              },
+            }}
           >
             {data?.map((review, idx) => (
               <SwiperSlide className="ps-8 lg:ps-[70px]" key={idx}>
@@ -436,14 +465,14 @@ export default function Home({ blogsData, userData }) {
               <div className="w-[200px] my-3">
                 <Button secondary title="Get Results" onClick={handleUpload} />
               </div>
-              <div className="flex items-start justify-center gap-3 w-full">
-                <div className="w-1/2 h-[500px]">
+              <div className="flex flex-col lg:flex-row items-start justify-center gap-3 w-full">
+                <div className="lg:w-1/2 w-full h-[250px] lg:h-[500px]">
                   <img
                     id="uploadedImage"
                     className="w-full h-full object-center hidden"
                   />
                 </div>
-                <div className="w-1/2 h-[500px]">
+                <div className="lg:w-1/2 w-full h-[250px] lg:h-[500px]">
                   <canvas
                     id="resultCanvas"
                     className="w-full h-full object-center"
@@ -474,8 +503,11 @@ export default function Home({ blogsData, userData }) {
               weeks to get better the soonest!
             </div>
 
-            <div className="flex items-start gap-4">
-              <img src={fractureDetails?.image} />
+            <div className="flex lg:flex-row flex-col items-start gap-4">
+              <img
+                className="lg:h-[500px] lg:w-fit h-[250px] w-full"
+                src={fractureDetails?.image}
+              />
 
               <div>
                 <div className="text-xl">

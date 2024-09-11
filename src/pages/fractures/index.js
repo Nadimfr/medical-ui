@@ -63,25 +63,28 @@ const fractures = ({ userData, userFracturesData }) => {
             title="Results"
           >
             <div className={`font-semibold text-xl mb-5`}>
-              Here are our recommendations for the next {fractureData.duration}
+              Here are our recommendations for the next {fractureData?.duration}
               weeks to get better the soonest!
             </div>
 
-            <div className="flex items-start gap-4">
-              <img src={fractureData.image} />
+            <div className="flex lg:flex-row flex-col items-start gap-4">
+              <img
+                className="lg:h-[500px] lg:w-fit h-[250px] w-full"
+                src={fractureData?.image}
+              />
 
               <div>
                 <div className="text-xl">
                   <span className="font-bold text-xl">9 A.M : </span>
-                  {fractureData?.solutions[0].solution}
+                  {fractureData?.solutions[0]?.solution}
                 </div>
                 <div className="text-xl">
                   <span className="font-bold text-xl">3 P.M : </span>
-                  {fractureData?.solutions[1].solution}
+                  {fractureData?.solutions[1]?.solution}
                 </div>
                 <div className="text-xl">
                   <span className="font-bold text-xl">6 P.M : </span>
-                  {fractureData?.solutions[2].solution}
+                  {fractureData?.solutions[2]?.solution}
                 </div>
               </div>
             </div>
